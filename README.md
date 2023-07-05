@@ -1,30 +1,36 @@
-## AXELOR Docgen 
+Axelor Open Suite
+================================
 
-**Title** : Module Docgen for Axelor
+Axelor Open Suite reduces the complexity and improve responsiveness of business processes. Thanks to its modularity, you can start with few features and  then activate other modules when needed.
 
-**Version** : 6.4.x (Axelor v6.4.x) - 6.3.x (Axelor v6.3.x) - 4.1.x (Axelor v.6.1.x) - 3.1.2 (Axelor v.6.0)
+Axelor Open Suite includes the following modules :
 
-**Description & motivation** : From template word, generate pdf document with using technologie aspose.
-you can only use this module with [docgen server](https://git.avrsolutions.fr/avr/docgen)
+* Customer Relationship Management
+* Sales management
+* Financial and cost management
+* Human Resource Management
+* Project Management
+* Inventory and Supply Chain Management
+* Production Management
+* Multi-company, multi-currency and multi-lingual
+
+Axelor Open Suite is built on top of [Axelor Open Platform](https://github.com/axelor/axelor-open-platform)
 
 
-**Installation instructions** : using with [PMA](https://git.avrsolutions.fr/avr/pma). Reference the git in your project in `pma.config.json` and the version and run pma script. 
+Installation
+================================
 
-example for `pma.config.json`
+To compile and run from source, you will need to clone Axelor Open Suite modules, which is a
+[git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) repository, using following commands:
 
-```json
-{
-    "axelor_version": "6.3",
-    "overwrite": true,
-    "keep_git": false,
-    "modules": [
-        {
-            "git": "git.avrsolutions.fr/axelor-module/docgen.git",
-            "version": "6.3.1"
-        }
-    ]
-}
-
+```bash
+$ git clone git@github.com:axelor/open-suite-webapp.git
+$ cd open-suite-webapp
+$ git checkout master
+$ git submodule init
+$ git submodule update
+$ git submodule foreach git checkout master
+$ git submodule foreach git pull origin master
 ```
 
-for more documentation go to [PMA](https://git.avrsolutions.fr/avr/pma)
+You can find more detailed [installation instructions](https://docs.axelor.com/abs/5.0/install/index.html) on our documentation.

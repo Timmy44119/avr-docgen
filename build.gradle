@@ -1,29 +1,93 @@
+import com.axelor.gradle.tasks.GenerateAosChangelog
+import com.axelor.gradle.tasks.CheckEOLCharsInCsv
+
 plugins {
-	id 'com.axelor.app'
+  id 'com.axelor.app'
 }
 
 axelor {
-	title "AVR :: Docgen"
-	description "AVR Docgen Module"
+  title "Axelor ERP"
+  description "Axelor Entreprise Application"
 }
+
+allprojects {
+  apply plugin: 'idea'
+  apply plugin: 'eclipse'
+
+  group = 'com.axelor.apps'
+  version = '7.0.4'
+
+  java {
+    toolchain {
+      languageVersion = JavaLanguageVersion.of(11)
+    }
+  }
+
+  afterEvaluate {
+    test {
+      useJUnitPlatform()
+      beforeTest { descriptor ->
+        logger.lifecycle('Running: ' + descriptor)
+      }
+    }
+  }
+
+  configurations {
+    runtimeClasspath.exclude group: "org.eclipse.birt.runtime.3_7_1", module: "org.apache.commons.codec"
+  }
+}
+
+tasks.withType(PublishToMavenRepository).configureEach { it.enabled = false }
 
 dependencies {
-	api "com.axelor.apps:axelor-account:${version}"
-	api "com.axelor.apps:axelor-sale:${version}"	
-	api "com.axelor.apps:axelor-supplychain:${version}"	
-	api "com.axelor.apps:axelor-purchase:${version}"	
-	api "com.axelor.apps:axelor-stock:${version}"		
-	api "com.axelor.apps:axelor-business-production:${version}"
-	api "com.axelor.apps:axelor-cash-management:${version}"
-
-	implementation 'org.apache.httpcomponents:httpmime:4.3.1'
-	implementation 'org.jsoup:jsoup:1.15.3'
-	implementation 'org.apache.pdfbox:pdfbox:2.0.24'
-	implementation group: 'net.lingala.zip4j', name: 'zip4j', version: '2.10.0'
+  gradle.appModules.each { dir ->
+    implementation project(":modules:$dir.name")
+  }
 }
 
-test {
-	useJUnit()
+apply from: 'gradle/style.gradle'
 
+task("dataImport", type: JavaExec) {
+  mainClass = "com.axelor.apps.erp.Main"
+  classpath = sourceSets.main.runtimeClasspath
+  if (System.getProperty("exec.args") != null) {
+    args System.getProperty("exec.args").split()
+  }
 }
 
+task archiveReports(type: Zip) {
+  file("modules").traverse(type: groovy.io.FileType.DIRECTORIES, maxDepth: 1) { dir ->
+    if (new File(dir, "build.gradle").exists() && new File(dir, "/src/main/resources/reports").exists()) {
+      new File(dir, "/src/main/resources/reports/").listFiles().each { report ->
+        from report.getPath()
+      }
+    }
+  }
+
+  classifier 'reports'
+  includeEmptyDirs = false
+  destinationDirectory = file("$buildDir/libs")
+}
+
+
+task generateChangelog(type: GenerateAosChangelog) {
+  group "Axelor application"
+  description "Generate change logs from unreleased entries."
+  files = fileTree(projectDir) {
+    include '**/changelogs/**/*.yml'
+    include '**/changelogs/**/*.yaml'
+  }
+}
+
+task checkCsvEOL(type: CheckEOLCharsInCsv) {
+  group "Axelor application"
+  description "Generate change logs from unreleased entries."
+  files = fileTree(projectDir) {
+    exclude '**/build'
+    exclude '**/bin'
+    exclude '**/out'
+    include '**/*.csv'
+  }
+}
+
+build.finalizedBy archiveReports

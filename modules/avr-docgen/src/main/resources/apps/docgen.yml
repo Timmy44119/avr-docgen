@@ -1,0 +1,13 @@
+---
+name: DocGen
+code: docgen
+typeSelect: standard
+installOrder: 9999
+description: |
+   DocGen by AVR
+image: app-docgen.png
+modules: 
+   avr-docgen
+dependsOn: 
+   - base
+sequence: 99
